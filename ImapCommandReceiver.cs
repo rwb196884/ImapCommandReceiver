@@ -10,11 +10,11 @@ namespace Rwb.ImapCommandReceiver
 {
     class ImapCommandReceiverOptions
     {
-        public string Server { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string MailFrom { get; set; }
-        public string MailTo { get; set; }
+        public string? Server { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string? MailFrom { get; set; }
+        public string? MailTo { get; set; }
     }
 
     internal class ImapCommandReceiver
