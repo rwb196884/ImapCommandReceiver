@@ -3,8 +3,8 @@
 d=$(realpath "$0")
 wd=$(dirname "$d")
 
-if [ ! -f "${wd}/Rwb.ImapCommandReceiver/appsettings.linux.json" ]; then
-	echo "appsettings.linux.json does not exist at ${wd}/Rwb.ImapCommandReceiver/appsettings.linux.json"
+if [ ! -f "${wd}/appsettings.linux.json" ]; then
+	echo "appsettings.linux.json does not exist at ${wd}/appsettings.linux.json"
 	exit 1
 fi
 
