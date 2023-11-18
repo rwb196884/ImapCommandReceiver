@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "ImapCommandReceiver (linux)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "linux"
+      }
+    },
+    "ImapCommandReceiver (work)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "work"
+      }
+    }
+  }
+}
