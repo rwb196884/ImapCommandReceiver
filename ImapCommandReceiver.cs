@@ -71,7 +71,14 @@ namespace Rwb.ImapCommandReceiver
             if (string.IsNullOrEmpty(command) || command == "void") { return; }
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "/bin/sh";
-            psi.Arguments = $"/root/bin/scene.sh {command} email";
+            if (command == "report")
+            {
+                psi.Arguments = $"/root/bin/sceneReport.sh";
+            }
+            else
+            {
+                psi.Arguments = $"/root/bin/scene.sh {command} email";
+            }
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
