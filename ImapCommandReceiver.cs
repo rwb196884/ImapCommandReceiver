@@ -46,7 +46,8 @@ namespace ConsoleAppImap
                     Match m = _Subject.Match(msg.NormalizedSubject);
                     if (m.Success && m.Groups[1].Success)
                     {
-                        Sh(s.Groups[1].Value);
+                        _Logger.LogInformation($"Processing: {m.Groups[1].Value}");
+                        Sh(m.Groups[1].Value);
                         // The UniqueId is always zero -- fuck knows what it's for. Therefore use the index.
                         await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                     }
