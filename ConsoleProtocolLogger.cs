@@ -11,7 +11,7 @@ namespace Rwb.ImapCommandReceiver
             _Logger = logger;
         }
 
-        public IAuthenticationSecretDetector AuthenticationSecretDetector { get; set; }
+        public IAuthenticationSecretDetector? AuthenticationSecretDetector { get; set; }
 
         public void Dispose() { }
 
