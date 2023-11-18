@@ -10,8 +10,8 @@ namespace Rwb.ImapCommandReceiver
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("-- Imap --");
-            System.Console.WriteLine($"DOTNET_ENVIRONMENT = {Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}");
+            //System.Console.WriteLine("-- Imap --");
+            //System.Console.WriteLine($"DOTNET_ENVIRONMENT = {Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}");
 
             using (IHost host = Host.CreateDefaultBuilder(args)
                 .ConfigureLogging((context, cfg) =>
@@ -37,7 +37,7 @@ namespace Rwb.ImapCommandReceiver
                     r.RunAsync().Wait();
                 }
             }
-            System.Console.WriteLine("Done.");
+            //System.Console.WriteLine("Done.");
         }
     }
 

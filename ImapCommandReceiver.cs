@@ -56,7 +56,14 @@ namespace Rwb.ImapCommandReceiver
                 _Logger.LogInformation(msg.NormalizedSubject);
             }
             await imapFolder.ExpungeAsync();
-            _Logger.LogInformation($"Processed {n} messages");
+	    if( n > 0 )
+            {
+                _Logger.LogInformation($"Processed {n} messages");
+            }
+            else 
+            {
+                _Logger.LogDebug($"Processed {n} messages");
+            }
         }
 
         private void Sh(string command)

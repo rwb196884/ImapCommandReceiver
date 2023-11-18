@@ -8,4 +8,6 @@ if [ ! -f "${wd}/appsettings.linux.json" ]; then
 	exit 1
 fi
 
+cd "$wd"
+
 dotnet run --launch-profile "ImapCommandReceiver (linux)" --project "${wd}/Rwb.ImapCommandReceiver.csproj"

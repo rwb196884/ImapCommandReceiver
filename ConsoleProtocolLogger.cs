@@ -28,7 +28,7 @@ namespace Rwb.ImapCommandReceiver
                 using (StreamReader r = new StreamReader(ms))
                 {
                     string msg = r.ReadToEnd();
-                    _Logger.LogInformation(msg);
+                    _Logger.LogDebug(msg);
                 }
             }
         }
@@ -46,7 +46,7 @@ namespace Rwb.ImapCommandReceiver
                 using (StreamReader r = new StreamReader(ms))
                 {
                     string msg = r.ReadToEnd();
-                    _Logger.LogInformation(msg);
+                    _Logger.LogDebug(msg);
                 }
             }
         }
@@ -64,7 +64,7 @@ namespace Rwb.ImapCommandReceiver
                 using (StreamReader r = new StreamReader(ms))
                 {
                     string msg = r.ReadToEnd();
-                    _Logger.LogInformation(msg);
+                    _Logger.LogDebug(msg);
                 }
             }
         }
