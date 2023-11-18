@@ -2,12 +2,11 @@
 using MailKit.Net.Imap;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MimeKit;
 using System.Diagnostics;
 using System.Net;
 using System.Text.RegularExpressions;
 
-namespace ConsoleAppImap
+namespace Rwb.ImapCommandReceiver
 {
     class ImapCommandReceiverOptions
     {
@@ -38,6 +37,7 @@ namespace ConsoleAppImap
             IMailFolder imapFolder = await _ImapClient.GetFolderAsync(_ImapClient.PersonalNamespaces[0].Path);
             imapFolder.Open(FolderAccess.ReadWrite);
             IFetchRequest rq = new FetchRequest(MessageSummaryItems.All);
+            int n = 0;
             foreach (IMessageSummary msg in await imapFolder.FetchAsync(0, -1, rq))
             {
                 string from = msg.Envelope.Sender.Mailboxes.First().Address;
@@ -48,6 +48,7 @@ namespace ConsoleAppImap
                     {
                         _Logger.LogInformation($"Processing: {m.Groups[1].Value}");
                         Sh(m.Groups[1].Value);
+                        n++;
                         // The UniqueId is always zero -- fuck knows what it's for. Therefore use the index.
                         await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                     }
@@ -55,11 +56,12 @@ namespace ConsoleAppImap
                 _Logger.LogInformation(msg.NormalizedSubject);
             }
             await imapFolder.ExpungeAsync();
+            _Logger.LogInformation($"Processed {n} messages");
         }
 
         private void Sh(string command)
         {
-            if(string.IsNullOrEmpty(command) || command == "void"){ return; }
+            if (string.IsNullOrEmpty(command) || command == "void") { return; }
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "/bin/sh";
             psi.Arguments = $"/root/bin/sceneSet.sh {command}";
@@ -67,7 +69,8 @@ namespace ConsoleAppImap
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
 
-            try {
+            try
+            {
                 using (Process process = new Process())
                 {
                     process.OutputDataReceived += (sender, args) =>
@@ -80,8 +83,8 @@ namespace ConsoleAppImap
 
                     string output = process.StandardOutput.ReadToEnd();
                 }
-            } 
-            catch( Exception e)
+            }
+            catch (Exception e)
             {
                 _Logger.LogError(e, $"Failed to run command /root/bin/sceneSet.sh {command}");
             }

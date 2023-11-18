@@ -1,7 +1,7 @@
 ﻿using MailKit;
 using Microsoft.Extensions.Logging;
 
-namespace ConsoleAppImap
+namespace Rwb.ImapCommandReceiver
 {
     internal class MailkitLogger : IProtocolLogger
     {
