@@ -56,11 +56,11 @@ namespace Rwb.ImapCommandReceiver
                 _Logger.LogInformation(msg.NormalizedSubject);
             }
             await imapFolder.ExpungeAsync();
-	    if( n > 0 )
+            if (n > 0)
             {
                 _Logger.LogInformation($"Processed {n} messages");
             }
-            else 
+            else
             {
                 _Logger.LogDebug($"Processed {n} messages");
             }
@@ -82,6 +82,8 @@ namespace Rwb.ImapCommandReceiver
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
+            psi.RedirectStandardError = true;
+            psi.RedirectStandardOutput = true;
 
             try
             {
