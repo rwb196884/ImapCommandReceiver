@@ -99,18 +99,19 @@ namespace Rwb.ImapCommandReceiver
             {
                 using (Process process = new Process())
                 {
-                    process.OutputDataReceived += (sender, args) =>
-                    {
-                        _Logger.LogInformation(args.Data);
-                    };
-                    process.ErrorDataReceived += (sender, args) =>
-                    {
-                        _Logger.LogInformation(args.Data);
-                    };
+                    // These events don't do anything.
+                    //process.OutputDataReceived += (sender, args) =>
+                    //{
+                    //    _Logger.LogInformation(args.Data);
+                    //};
+                    //process.ErrorDataReceived += (sender, args) =>
+                    //{
+                    //    _Logger.LogInformation(args.Data);
+                    //};
                     process.StartInfo = psi;
                     process.Start();
-                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
-                    _Logger.LogInformation(process.StandardError.ReadToEnd());
+                    LogLines(process.StandardOutput.ReadToEnd());
+                    LogLines(process.StandardError.ReadToEnd());
                     process.WaitForExit();
 
                     string output = process.StandardOutput.ReadToEnd();
@@ -138,18 +139,10 @@ namespace Rwb.ImapCommandReceiver
             {
                 using (Process process = new Process())
                 {
-                    process.OutputDataReceived += (sender, args) =>
-                    {
-                        _Logger.LogInformation(args.Data);
-                    };
-                    process.ErrorDataReceived += (sender, args) =>
-                    {
-                        _Logger.LogInformation(args.Data);
-                    };
                     process.StartInfo = psi;
                     process.Start();
-                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
-                    _Logger.LogInformation(process.StandardError.ReadToEnd());
+                    LogLines(process.StandardOutput.ReadToEnd());
+                    LogLines(process.StandardError.ReadToEnd());
                     process.WaitForExit();
 
                     string output = process.StandardOutput.ReadToEnd();
@@ -158,6 +151,14 @@ namespace Rwb.ImapCommandReceiver
             catch (Exception e)
             {
                 _Logger.LogError(e, $"Failed to run command /root/bin/sceneSet.sh {command}");
+            }
+        }
+
+        private void LogLines(string lines)
+        {
+            foreach(string s in lines.Split(Environment.NewLine))
+            {
+                _Logger.LogInformation(s);
             }
         }
     }
