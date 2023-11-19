@@ -58,7 +58,7 @@ namespace Rwb.ImapCommandReceiver
                     if(m.Success && m.Groups[1].Success && m.Groups[2].Success)
                     {
                         _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
-                        ProcessSolar(m.Groups[1].Value);
+                        ProcessSolar(m.Groups[1].Value, int.Parse(m.Groups[2].Value));
                         n++;
                         await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
 
