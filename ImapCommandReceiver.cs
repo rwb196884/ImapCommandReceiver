@@ -109,6 +109,8 @@ namespace Rwb.ImapCommandReceiver
                     };
                     process.StartInfo = psi;
                     process.Start();
+                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
+                    _Logger.LogInformation(process.StandardError.ReadToEnd());
                     process.WaitForExit();
 
                     string output = process.StandardOutput.ReadToEnd();
@@ -146,6 +148,8 @@ namespace Rwb.ImapCommandReceiver
                     };
                     process.StartInfo = psi;
                     process.Start();
+                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
+                    _Logger.LogInformation(process.StandardError.ReadToEnd());
                     process.WaitForExit();
 
                     string output = process.StandardOutput.ReadToEnd();
