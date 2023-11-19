@@ -18,6 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="appsettings - Copy.json" />
+    <None Remove="appsettings.work.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MailKit" Version="4.3.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />

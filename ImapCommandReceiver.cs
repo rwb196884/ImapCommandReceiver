@@ -19,7 +19,8 @@ namespace Rwb.ImapCommandReceiver
 
     internal class ImapCommandReceiver
     {
-        private static readonly Regex _Subject = new Regex(@"cmd scene (\w+)", RegexOptions.Compiled);
+        private static readonly Regex _SubjectScene = new Regex(@"scene (\w+)", RegexOptions.Compiled);
+        private static readonly Regex _SubjectSolar = new Regex(@"solar (\w+) (\d+)", RegexOptions.Compiled);
         private readonly ILogger<ImapCommandReceiver> _Logger;
         private readonly ImapCommandReceiverOptions _Options;
         private readonly ImapClient _ImapClient;
@@ -43,17 +44,26 @@ namespace Rwb.ImapCommandReceiver
                 string from = msg.Envelope.Sender.Mailboxes.First().Address;
                 if (from == "rwb@rwb.me.uk")
                 {
-                    Match m = _Subject.Match(msg.NormalizedSubject);
+                    Match m = _SubjectScene.Match(msg.NormalizedSubject);
                     if (m.Success && m.Groups[1].Success)
                     {
-                        _Logger.LogInformation($"Processing: {m.Groups[1].Value}");
-                        Sh(m.Groups[1].Value);
+                        _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
+                        ProcessScene(m.Groups[1].Value);
                         n++;
                         // The UniqueId is always zero -- fuck knows what it's for. Therefore use the index.
                         await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                     }
+
+                    m = _SubjectSolar.Match(msg.NormalizedSubject);
+                    if(m.Success && m.Groups[1].Success && m.Groups[2].Success)
+                    {
+                        _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
+                        ProcessSolar(m.Groups[1].Value);
+                        n++;
+                        await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
+
+                    }
                 }
-                _Logger.LogInformation(msg.NormalizedSubject);
             }
             await imapFolder.ExpungeAsync();
             if (n > 0)
@@ -66,7 +76,7 @@ namespace Rwb.ImapCommandReceiver
             }
         }
 
-        private void Sh(string command)
+        private void ProcessScene(string command)
         {
             if (string.IsNullOrEmpty(command) || command == "void") { return; }
             ProcessStartInfo psi = new ProcessStartInfo();
@@ -90,6 +100,47 @@ namespace Rwb.ImapCommandReceiver
                 using (Process process = new Process())
                 {
                     process.OutputDataReceived += (sender, args) =>
+                    {
+                        _Logger.LogInformation(args.Data);
+                    };
+                    process.ErrorDataReceived += (sender, args) =>
+                    {
+                        _Logger.LogInformation(args.Data);
+                    };
+                    process.StartInfo = psi;
+                    process.Start();
+                    process.WaitForExit();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.LogError(e, $"Failed to run command /root/bin/sceneSet.sh {command}");
+            }
+        }
+
+        private void ProcessSolar(string command, int value)
+        {
+            if (string.IsNullOrEmpty(command) || command == "void") { return; }
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "/bin/sh";
+            psi.Arguments = $"/home/rwb/Luxopus/{(command == "charge" ? "chargeFromGrid" : "dischargeToGrid")}.sh {value}";
+            psi.RedirectStandardOutput = true;
+            psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardError = true;
+            psi.RedirectStandardOutput = true;
+
+            try
+            {
+                using (Process process = new Process())
+                {
+                    process.OutputDataReceived += (sender, args) =>
+                    {
+                        _Logger.LogInformation(args.Data);
+                    };
+                    process.ErrorDataReceived += (sender, args) =>
                     {
                         _Logger.LogInformation(args.Data);
                     };
