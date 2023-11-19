@@ -20,9 +20,8 @@ namespace Rwb.ImapCommandReceiver
                     cfg.AddConfiguration(context.Configuration.GetSection("Logging"));
                     cfg.AddSimpleConsole(configure =>
                     {
-                        configure.IncludeScopes = true;
-                        configure.SingleLine = true;
-                        configure.TimestampFormat = "dd MMM HH:mm ";
+                        configure.IncludeScopes = false;
+                        configure.SingleLine = false;
                     });
                 })
                 .AddAppsettingsWithAspNetCoreEnvironment()

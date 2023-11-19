@@ -110,8 +110,8 @@ namespace Rwb.ImapCommandReceiver
                     //};
                     process.StartInfo = psi;
                     process.Start();
-                    LogLines(process.StandardOutput.ReadToEnd());
-                    LogLines(process.StandardError.ReadToEnd());
+                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
+                    _Logger.LogInformation(process.StandardError.ReadToEnd());
                     process.WaitForExit();
 
                     string output = process.StandardOutput.ReadToEnd();
@@ -141,8 +141,8 @@ namespace Rwb.ImapCommandReceiver
                 {
                     process.StartInfo = psi;
                     process.Start();
-                    LogLines(process.StandardOutput.ReadToEnd());
-                    LogLines(process.StandardError.ReadToEnd());
+                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
+                    _Logger.LogInformation(process.StandardError.ReadToEnd());
                     process.WaitForExit();
 
                     string output = process.StandardOutput.ReadToEnd();
@@ -151,14 +151,6 @@ namespace Rwb.ImapCommandReceiver
             catch (Exception e)
             {
                 _Logger.LogError(e, $"Failed to run command /root/bin/sceneSet.sh {command}");
-            }
-        }
-
-        private void LogLines(string lines)
-        {
-            foreach(string s in lines.Split(Environment.NewLine))
-            {
-                _Logger.LogInformation(s);
             }
         }
     }
