@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Rwb.ImapCommandReceiver
@@ -33,46 +34,60 @@ namespace Rwb.ImapCommandReceiver
         }
         public async Task RunAsync()
         {
-            await _ImapClient.ConnectAsync(_Options.Server, 993, true);
-            await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
-            IMailFolder imapFolder = await _ImapClient.GetFolderAsync(_ImapClient.PersonalNamespaces[0].Path);
-            imapFolder.Open(FolderAccess.ReadWrite);
-            IFetchRequest rq = new FetchRequest(MessageSummaryItems.All);
-            int n = 0;
-            foreach (IMessageSummary msg in await imapFolder.FetchAsync(0, -1, rq))
+            try
             {
-                string from = msg.Envelope.Sender.Mailboxes.First().Address;
-                if (from == "rwb@rwb.me.uk")
+                await _ImapClient.ConnectAsync(_Options.Server, 993, true);
+                await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
+                IMailFolder imapFolder = await _ImapClient.GetFolderAsync(_ImapClient.PersonalNamespaces[0].Path);
+                imapFolder.Open(FolderAccess.ReadWrite);
+                IFetchRequest rq = new FetchRequest(MessageSummaryItems.All);
+                int n = 0;
+                foreach (IMessageSummary msg in await imapFolder.FetchAsync(0, -1, rq))
                 {
-                    Match m = _SubjectScene.Match(msg.NormalizedSubject);
-                    if (m.Success && m.Groups[1].Success)
+                    string from = msg.Envelope.Sender.Mailboxes.First().Address;
+                    if (from == "rwb@rwb.me.uk")
                     {
-                        _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
-                        ProcessScene(m.Groups[1].Value);
-                        n++;
-                        // The UniqueId is always zero -- fuck knows what it's for. Therefore use the index.
-                        await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
-                    }
+                        Match m = _SubjectScene.Match(msg.NormalizedSubject);
+                        if (m.Success && m.Groups[1].Success)
+                        {
+                            _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
+                            ProcessScene(m.Groups[1].Value);
+                            n++;
+                            // The UniqueId is always zero -- fuck knows what it's for. Therefore use the index.
+                            await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
+                        }
 
-                    m = _SubjectSolar.Match(msg.NormalizedSubject);
-                    if(m.Success && m.Groups[1].Success && m.Groups[2].Success)
-                    {
-                        _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
-                        ProcessSolar(m.Groups[1].Value, int.Parse(m.Groups[2].Value));
-                        n++;
-                        await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
+                        m = _SubjectSolar.Match(msg.NormalizedSubject);
+                        if (m.Success && m.Groups[1].Success && m.Groups[2].Success)
+                        {
+                            _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
+                            ProcessSolar(m.Groups[1].Value, int.Parse(m.Groups[2].Value));
+                            n++;
+                            await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
 
+                        }
                     }
                 }
+                await imapFolder.ExpungeAsync();
+                if (n > 0)
+                {
+                    _Logger.LogInformation($"Processed {n} messages");
+                }
+                else
+                {
+                    _Logger.LogDebug($"Processed {n} messages");
+                }
             }
-            await imapFolder.ExpungeAsync();
-            if (n > 0)
+            catch( Exception e)
             {
-                _Logger.LogInformation($"Processed {n} messages");
-            }
-            else
-            {
-                _Logger.LogDebug($"Processed {n} messages");
+                StringBuilder message = new StringBuilder();
+                message.AppendLine("Failed to get messages.");
+                Exception f = e;
+                while( f != null)
+                {
+                    message.AppendLine("  " + f.Message);
+                    message.AppendLine("    " + (f.StackTrace ?? "").Split(Environment.NewLine).FirstOrDefault("(no stack trace available)"));
+                }
             }
         }
 
