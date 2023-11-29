@@ -82,7 +82,7 @@ namespace Rwb.ImapCommandReceiver
             {
                 StringBuilder message = new StringBuilder();
                 message.AppendLine("Failed to get messages.");
-                Exception f = e;
+                Exception? f = e;
                 while( f != null)
                 {
                     message.AppendLine("  " + f.Message);
