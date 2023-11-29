@@ -51,7 +51,7 @@ namespace Rwb.ImapCommandReceiver
                         if (m.Success && m.Groups[1].Success)
                         {
                             _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
-                            ProcessScene(m.Groups[1].Value);
+                            //ProcessScene(m.Groups[1].Value);
                             n++;
                             // The UniqueId is always zero -- fuck knows what it's for. Therefore use the index.
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
@@ -61,7 +61,7 @@ namespace Rwb.ImapCommandReceiver
                         if (m.Success && m.Groups[1].Success && m.Groups[2].Success)
                         {
                             _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
-                            ProcessSolar(m.Groups[1].Value, int.Parse(m.Groups[2].Value));
+                            //ProcessSolar(m.Groups[1].Value, int.Parse(m.Groups[2].Value));
                             n++;
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
 
@@ -87,8 +87,34 @@ namespace Rwb.ImapCommandReceiver
                 {
                     message.AppendLine("  " + f.Message);
                     message.AppendLine("    " + (f.StackTrace ?? "").Split(Environment.NewLine).FirstOrDefault("(no stack trace available)"));
+                    f = f.InnerException;
                 }
             }
+        }
+
+        public void Listen()
+        {
+            _ImapClient.Connect(_Options.Server, 993, true);
+            _ImapClient.Authenticate(new NetworkCredential(_Options.Username, _Options.Password));
+            _ImapClient.Inbox.Open(FolderAccess.ReadOnly);
+            //imapFolder.CountChanged += ImapFolder_CountChanged;
+            _ImapClient.Inbox.CountChanged += ImapFolder_CountChanged;
+
+            using (CancellationTokenSource done = new CancellationTokenSource())
+            {
+                var task = _ImapClient.IdleAsync(done.Token);
+
+                Console.WriteLine("IMAP idling. Press any key to quit.");
+                Console.ReadKey();
+                done.Cancel();
+                task.Wait();
+            }
+        }
+
+        private void ImapFolder_CountChanged(object? sender, EventArgs e)
+        {
+            ImapFolder folder = (ImapFolder)sender;
+            _Logger.LogInformation($"{folder.Count} messages in folder {folder.Name}");
         }
 
         private void ProcessScene(string command)
@@ -134,7 +160,7 @@ namespace Rwb.ImapCommandReceiver
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, $"Failed to run command /root/bin/sceneSet.sh {command}");
+                _Logger.LogError(e, $"Failed to run command /root/bin/scene.sh {command}");
             }
         }
 
