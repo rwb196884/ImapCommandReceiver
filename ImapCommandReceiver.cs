@@ -113,8 +113,8 @@ namespace Rwb.ImapCommandReceiver
 
         private void ImapFolder_CountChanged(object? sender, EventArgs e)
         {
-            ImapFolder folder = (ImapFolder)sender;
-            _Logger.LogInformation($"{folder.Count} messages in folder {folder.Name}");
+            ImapFolder? folder = sender as ImapFolder;
+            _Logger.LogInformation($"{folder?.Count ?? -1} messages in folder {folder?.Name ?? "?"}");
         }
 
         private void ProcessScene(string command)
