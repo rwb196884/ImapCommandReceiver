@@ -39,6 +39,26 @@ namespace Rwb.ImapCommandReceiver
                 await _ImapClient.ConnectAsync(_Options.Server, 993, true);
                 await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
                 IMailFolder imapFolder = await _ImapClient.GetFolderAsync(_ImapClient.PersonalNamespaces[0].Path);
+                await ProcessMessagesAsync(imapFolder);
+            }
+            catch( Exception e)
+            {
+                StringBuilder message = new StringBuilder();
+                message.AppendLine("Failed to get messages.");
+                Exception? f = e;
+                while( f != null)
+                {
+                    message.AppendLine("  " + f.Message);
+                    message.AppendLine("    " + (f.StackTrace ?? "").Split(Environment.NewLine).FirstOrDefault("(no stack trace available)"));
+                    f = f.InnerException;
+                }
+            }
+        }
+
+        private async Task ProcessMessagesAsync(IMailFolder imapFolder)
+        {
+            try
+            {
                 imapFolder.Open(FolderAccess.ReadWrite);
                 IFetchRequest rq = new FetchRequest(MessageSummaryItems.All);
                 int n = 0;
@@ -78,12 +98,12 @@ namespace Rwb.ImapCommandReceiver
                     _Logger.LogDebug($"Processed {n} messages");
                 }
             }
-            catch( Exception e)
+            catch (Exception e)
             {
                 StringBuilder message = new StringBuilder();
-                message.AppendLine("Failed to get messages.");
+                message.AppendLine("Failed to process messages.");
                 Exception? f = e;
-                while( f != null)
+                while (f != null)
                 {
                     message.AppendLine("  " + f.Message);
                     message.AppendLine("    " + (f.StackTrace ?? "").Split(Environment.NewLine).FirstOrDefault("(no stack trace available)"));
@@ -92,29 +112,34 @@ namespace Rwb.ImapCommandReceiver
             }
         }
 
-        public void Listen()
+        public async Task ListenAsync(CancellationToken cancellationToken)
         {
-            _ImapClient.Connect(_Options.Server, 993, true);
-            _ImapClient.Authenticate(new NetworkCredential(_Options.Username, _Options.Password));
-            _ImapClient.Inbox.Open(FolderAccess.ReadOnly);
+            await _ImapClient.ConnectAsync(_Options.Server, 993, true);
+            await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
+            await _ImapClient.Inbox.OpenAsync(FolderAccess.ReadOnly);
             //imapFolder.CountChanged += ImapFolder_CountChanged;
             _ImapClient.Inbox.CountChanged += ImapFolder_CountChanged;
+            _ImapClient.Inbox.AnnotationsChanged += ImapFolder_CountChanged;
+            _ImapClient.Inbox.MessageFlagsChanged += ImapFolder_CountChanged;
+            _ImapClient.Inbox.MessageExpunged += ImapFolder_CountChanged;
+            _ImapClient.Disconnected += _ImapClient_Disconnected;
+            await _ImapClient.IdleAsync(cancellationToken);
+            await _ImapClient.DisconnectAsync(true);
+        }
 
-            using (CancellationTokenSource done = new CancellationTokenSource())
-            {
-                var task = _ImapClient.IdleAsync(done.Token);
-
-                Console.WriteLine("IMAP idling. Press any key to quit.");
-                Console.ReadKey();
-                done.Cancel();
-                task.Wait();
-            }
+        private void _ImapClient_Disconnected(object? sender, DisconnectedEventArgs e)
+        {
+            _Logger.LogInformation("Disconnected");
         }
 
         private void ImapFolder_CountChanged(object? sender, EventArgs e)
         {
             ImapFolder? folder = sender as ImapFolder;
             _Logger.LogInformation($"{folder?.Count ?? -1} messages in folder {folder?.Name ?? "?"}");
+            if (folder != null)
+            {
+                ProcessMessagesAsync(folder).Wait();
+            }
         }
 
         private void ProcessScene(string command)
