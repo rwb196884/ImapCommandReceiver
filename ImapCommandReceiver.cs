@@ -40,6 +40,7 @@ namespace Rwb.ImapCommandReceiver
                 await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
                 IMailFolder imapFolder = await _ImapClient.GetFolderAsync(_ImapClient.PersonalNamespaces[0].Path);
                 await ProcessMessagesAsync(imapFolder);
+                await _ImapClient.DisconnectAsync(true);
             }
             catch( Exception e)
             {
@@ -52,6 +53,7 @@ namespace Rwb.ImapCommandReceiver
                     message.AppendLine("    " + (f.StackTrace ?? "").Split(Environment.NewLine).FirstOrDefault("(no stack trace available)"));
                     f = f.InnerException;
                 }
+                _Logger.LogError(message.ToString());
             }
         }
 
@@ -109,6 +111,7 @@ namespace Rwb.ImapCommandReceiver
                     message.AppendLine("    " + (f.StackTrace ?? "").Split(Environment.NewLine).FirstOrDefault("(no stack trace available)"));
                     f = f.InnerException;
                 }
+                _Logger.LogError(message.ToString());
             }
         }
 
