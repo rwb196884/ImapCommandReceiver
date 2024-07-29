@@ -70,7 +70,7 @@ namespace Rwb.ImapCommandReceiver
                     string from = msg.Envelope.Sender.Mailboxes.First().Address;
                     if (from == "rwb@rwb.me.uk")
                     {
-                        Match m = _SubjectScene.Match(msg.NormalizedSubject);
+                        Match m = _SubjectScene.Match(msg.NormalizedSubject.ToLowerInvariant());
                         if (m.Success && m.Groups[1].Success)
                         {
                             _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
@@ -80,7 +80,7 @@ namespace Rwb.ImapCommandReceiver
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                         }
 
-                        m = _SubjectSolar.Match(msg.NormalizedSubject);
+                        m = _SubjectSolar.Match(msg.NormalizedSubject.ToLowerInvariant());
                         if (m.Success && m.Groups[1].Success && m.Groups[2].Success)
                         {
                             _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
@@ -89,7 +89,7 @@ namespace Rwb.ImapCommandReceiver
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                         }
 
-                        m = _SubjectAlarm.Match(msg.NormalizedSubject);
+                        m = _SubjectAlarm.Match(msg.NormalizedSubject.ToLowerInvariant());
                         if (m.Success && m.Groups[1].Success)
                         {
                             _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
