@@ -23,6 +23,7 @@ namespace Rwb.ImapCommandReceiver
         private static readonly Regex _SubjectScene = new Regex(@"scene (\w+)", RegexOptions.Compiled);
         private static readonly Regex _SubjectSolar = new Regex(@"solar (\w+) (\d+)", RegexOptions.Compiled);
         private static readonly Regex _SubjectAlarm = new Regex(@"alarm (\d{2}:\d{2})", RegexOptions.Compiled);
+        private static readonly Regex _SubjectWater = new Regex(@"water (\d*)", RegexOptions.Compiled);
         private readonly ILogger<ImapCommandReceiver> _Logger;
         private readonly ImapCommandReceiverOptions _Options;
         private readonly ImapClient _ImapClient;
@@ -96,7 +97,15 @@ namespace Rwb.ImapCommandReceiver
                             ProcessAlarm(m.Groups[1].Value);
                             n++;
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
+                        }
 
+                        m = _SubjectWater.Match(msg.NormalizedSubject.ToLowerInvariant());
+                        if (m.Success)
+                        {
+                            _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
+                            ProcessWater(m.Groups[1].Success ? int.Parse(m.Groups[1].Value) : 8);
+                            n++;
+                            await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                         }
                     }
                 }
@@ -260,6 +269,36 @@ namespace Rwb.ImapCommandReceiver
             catch (Exception e)
             {
                 _Logger.LogError(e, $"Failed to run command /root/bin/alarm.sh {time}");
+            }
+        }
+
+        private void ProcessWater(int holdMinutes)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "/bin/sh";
+            psi.Arguments = $"/root/bin/hot-water.sh hold {holdMinutes} 'ImapCommandReceiver {DateTime.Now:HH:mm}'";
+            psi.RedirectStandardOutput = true;
+            psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardError = true;
+            psi.RedirectStandardOutput = true;
+
+            try
+            {
+                using (Process process = new Process())
+                {
+                    process.StartInfo = psi;
+                    process.Start();
+                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
+                    _Logger.LogInformation(process.StandardError.ReadToEnd());
+                    process.WaitForExit();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.LogError(e, $"/root/bin/hot-water.sh hold {holdMinutes} 'ImapCommandReceiver {DateTime.Now:HH:mm}'");
             }
         }
     }
