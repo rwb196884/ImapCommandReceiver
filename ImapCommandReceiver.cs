@@ -276,7 +276,7 @@ namespace Rwb.ImapCommandReceiver
         {
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "/bin/sh";
-            psi.Arguments = $"/root/bin/hot-water.sh hold {holdMinutes} 'ImapCommandReceiver {DateTime.Now:HH:mm}'";
+            psi.Arguments = $"/root/bin/hot-water.sh hold {holdMinutes} 'ImapCommandReceiver {DateTime.Now.ToString("HH:mm")}'";
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
