@@ -107,6 +107,14 @@ namespace Rwb.ImapCommandReceiver
                             n++;
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                         }
+
+                        if(msg.NormalizedSubject.ToLower().StartsWith("free "))
+                        {
+                            _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
+                            ProcessFree(msg.NormalizedSubject.Substring(6));
+                            n++;
+                            await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
+                        }
                     }
                 }
                 await imapFolder.ExpungeAsync();
@@ -238,7 +246,38 @@ namespace Rwb.ImapCommandReceiver
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, $"Failed to run command /root/bin/sceneSet.sh {command}");
+                _Logger.LogError(e, $"Failed to run command /home/rwb/Luxopus/{(command == "charge" ? "chargeFromGrid" : "dischargeToGrid")}.sh {value}");
+            }
+        }
+
+        private void ProcessFree(string date)
+        {
+            if (string.IsNullOrEmpty(command) || command == "void") { return; }
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "/bin/sh";
+            psi.Arguments = $"/home/rwb/Luxopus/free.sh '{date}'";
+            psi.RedirectStandardOutput = true;
+            psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardError = true;
+            psi.RedirectStandardOutput = true;
+
+            try
+            {
+                using (Process process = new Process())
+                {
+                    process.StartInfo = psi;
+                    process.Start();
+                    _Logger.LogInformation(process.StandardOutput.ReadToEnd());
+                    _Logger.LogInformation(process.StandardError.ReadToEnd());
+                    process.WaitForExit();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.LogError(e, $"Failed to run command /home/rwb/Luxopus/free.sh '{date}'");
             }
         }
 
