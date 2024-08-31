@@ -6,11 +6,25 @@
         "DOTNET_ENVIRONMENT": "linux"
       }
     },
+    "ImapCommandReceiver (linux, listen)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "linux"
+      },
+      "commandLineArgs": "listen"
+    },
     "ImapCommandReceiver (work)": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "work"
       }
+    },
+    "ImapCommandReceiver (work, listen)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "work"
+      },
+      "commandLineArgs": "listen"
     }
   }
 }

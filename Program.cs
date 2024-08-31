@@ -33,7 +33,22 @@ namespace Rwb.ImapCommandReceiver
                 using (IServiceScope scope = host.Services.CreateScope())
                 {
                     ImapCommandReceiver r = scope.ServiceProvider.GetRequiredService<ImapCommandReceiver>();
-                    r.RunAsync().Wait();
+                    if (args.Length > 0 && args[0] == "listen")
+                    {
+                        using (CancellationTokenSource done = new CancellationTokenSource())
+                        {
+                            Task listen = r.ListenAsync(done.Token);
+
+                            Console.WriteLine("IMAP idling. Press any key to quit.");
+                            Console.ReadKey();
+                            done.Cancel();
+                            listen.Wait();
+                        }
+                    }
+                    else
+                    {
+                        r.RunAsync().Wait();
+                    }
                 }
             }
             //System.Console.WriteLine("Done.");
