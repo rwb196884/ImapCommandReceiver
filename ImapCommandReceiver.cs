@@ -255,7 +255,7 @@ namespace Rwb.ImapCommandReceiver
             if (string.IsNullOrEmpty(date)) { return; }
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "/bin/sh";
-            psi.Arguments = $"/home/rwb/Luxopus/free.sh '{date}'";
+            psi.Arguments = $"/home/rwb/Luxopus/free.sh \"{date}\"";
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
