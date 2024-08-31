@@ -111,7 +111,7 @@ namespace Rwb.ImapCommandReceiver
                         if(msg.NormalizedSubject.ToLower().StartsWith("free "))
                         {
                             _Logger.LogInformation($"Processing: {msg.NormalizedSubject}");
-                            ProcessFree(msg.NormalizedSubject.Substring(6));
+                            ProcessFree(msg.NormalizedSubject.Substring(5));
                             n++;
                             await imapFolder.AddFlagsAsync(msg.Index, MessageFlags.Deleted, true);
                         }
