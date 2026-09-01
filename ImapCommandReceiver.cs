@@ -179,11 +179,11 @@ namespace Rwb.ImapCommandReceiver
             psi.FileName = "/bin/sh";
             if (command == "report")
             {
-                psi.Arguments = $"/root/bin/sceneReport.sh";
+                psi.Arguments = $"/opt/scene/sceneReport.sh";
             }
             else
             {
-                psi.Arguments = $"/root/bin/scene.sh {command} email";
+                psi.Arguments = $"/opt/scene/scene.sh {command} email";
             }
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
@@ -285,7 +285,7 @@ namespace Rwb.ImapCommandReceiver
         {
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "/bin/sh";
-            psi.Arguments = $"/root/bin/alarm.sh {time}";
+            psi.Arguments = $"/opt/scene/alarm.sh {time}";
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
@@ -315,7 +315,7 @@ namespace Rwb.ImapCommandReceiver
         {
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "/bin/sh";
-            psi.Arguments = $"/root/bin/hot-water.sh hold {holdMinutes} ImapCommandReceiver_{DateTime.Now:HH-mm}";
+            psi.Arguments = $"/opt/scene/hot-water.sh hold {holdMinutes} ImapCommandReceiver_{DateTime.Now:HH-mm}";
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
@@ -337,7 +337,7 @@ namespace Rwb.ImapCommandReceiver
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, $"/root/bin/hot-water.sh hold {holdMinutes} 'ImapCommandReceiver {DateTime.Now:HH:mm}'");
+                _Logger.LogError(e, $"/opt/scene/hot-water.sh hold {holdMinutes} 'ImapCommandReceiver {DateTime.Now:HH:mm}'");
             }
         }
     }
