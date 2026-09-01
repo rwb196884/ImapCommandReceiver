@@ -15,11 +15,12 @@ fi
 cd "$wd"
 
 if [ -z "$1" ]; then
-	dotnet run --launch-profile "ImapCommandReceiver (linux)" --project "${wd}/Rwb.ImapCommandReceiver.csproj"
+	dotnet run --verbosity quiet --launch-profile "ImapCommandReceiver (linux)" --project "${wd}/Rwb.ImapCommandReceiver.csproj"
 elif [ "$1" = "screen" ]; then
 	if [ $( screen -ls | grep ImapCommandReceiver | wc -l ) -eq 0 ]; then
 		# need to start
 		logger -s "Starting ImapCommandReceiver on screen."
-		/usr/bin/screen -dm -S ImapCommandReceiver -Logfile /root/screen.ImapCommandReceiver.log "dotnet run --launch-profile \"ImapCommandReceiver (linux, listen)\" --project \"${wd}/Rwb.ImapCommandReceiver.csproj\""
+		#/usr/bin/screen -dm -S ImapCommandReceiver -Logfile /home/rwb/ImapCommandReceiver/screen.log "dotnet run --launch-profile \"ImapCommandReceiver (linux, listen)\" --project \"${wd}/Rwb.ImapCommandReceiver.csproj\""
+		/usr/bin/screen -dm -S ImapCommandReceiver -L -Logfile /home/rwb/ImapCommandReceiver/screen.log "dotnet run --launch-profile \"ImapCommandReceiver (linux)\" --project \"${wd}/Rwb.ImapCommandReceiver.csproj\" listen"
 	fi
 fi
