@@ -183,7 +183,7 @@ namespace Rwb.ImapCommandReceiver
             }
             else
             {
-                psi.Arguments = $"/opt/scene/scene.sh {command} email";
+                psi.Arguments = $"/opt/scene/scenes.sh {command} '*' email";
             }
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
@@ -215,7 +215,7 @@ namespace Rwb.ImapCommandReceiver
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, $"Failed to run command /root/bin/scene.sh {command}");
+                _Logger.LogError(e, $"Failed to run command /opt/scene/scenes.sh {command} '*' email");
             }
         }
 
@@ -307,7 +307,7 @@ namespace Rwb.ImapCommandReceiver
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, $"Failed to run command /root/bin/alarm.sh {time}");
+                _Logger.LogError(e, $"Failed to run command /opt/scene/alarm.sh {time}");
             }
         }
 
