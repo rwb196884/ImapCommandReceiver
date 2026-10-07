@@ -183,7 +183,7 @@ namespace Rwb.ImapCommandReceiver
             }
             else
             {
-                psi.Arguments = $"/opt/scene/scenes.sh {command} '*' email";
+                psi.Arguments = $"/opt/scene/scenes.sh {command} * email";
             }
             psi.RedirectStandardOutput = true;
             psi.UseShellExecute = false;
