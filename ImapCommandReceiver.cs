@@ -38,7 +38,7 @@ namespace Rwb.ImapCommandReceiver
         {
             try
             {
-                await _ImapClient.ConnectAsync(_Options.Server, 993, true);
+                await _ImapClient.ConnectAsync(_Options.Server!, 993, true);
                 await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
                 IMailFolder imapFolder = await _ImapClient.GetFolderAsync(_ImapClient.PersonalNamespaces[0].Path);
                 await ProcessMessagesAsync(imapFolder);
@@ -68,8 +68,8 @@ namespace Rwb.ImapCommandReceiver
                 int n = 0;
                 foreach (IMessageSummary msg in await imapFolder.FetchAsync(0, -1, rq))
                 {
-                    string from = msg.Envelope.Sender.Mailboxes.First().Address;
-                    if (from == "rwb@rwb.me.uk")
+                    string? from = msg?.Envelope?.Sender?.Mailboxes?.FirstOrDefault()?.Address;
+                    if (!string.IsNullOrEmpty(from) && from == "rwb@rwb.me.uk")
                     {
                         Match m = _SubjectScene.Match(msg.NormalizedSubject.ToLowerInvariant());
                         if (m.Success && m.Groups[1].Success)
@@ -144,7 +144,7 @@ namespace Rwb.ImapCommandReceiver
 
         public async Task ListenAsync(CancellationToken cancellationToken)
         {
-            await _ImapClient.ConnectAsync(_Options.Server, 993, true);
+            await _ImapClient.ConnectAsync(_Options.Server!, 993, true);
             await _ImapClient.AuthenticateAsync(new NetworkCredential(_Options.Username, _Options.Password));
             await _ImapClient.Inbox.OpenAsync(FolderAccess.ReadOnly);
             //imapFolder.CountChanged += ImapFolder_CountChanged;
